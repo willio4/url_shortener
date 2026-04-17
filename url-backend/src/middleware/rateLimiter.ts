@@ -27,7 +27,6 @@ export const rateLimiter = (
     };
 
     record.set(ip, userRecord);
-    res.json({ip: ip, count: userRecord.count});
     return next();
   }
 
@@ -38,6 +37,5 @@ export const rateLimiter = (
   }
 
   userRecord.count += 1;
-  res.json({ip: ip, count: userRecord.count});
   return next();
 };
