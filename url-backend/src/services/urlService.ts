@@ -1,9 +1,9 @@
-import pool from "../db/db";
+import pool from "../config/db";
+import { AppError } from "../utils/AppError";
 import { generateShortCode } from "../utils/generateShortCode";
-import { getFromCache, setCache } from "../utils/cache";
-import { redisClient } from "../utils/redisClient";
+import { redisClient } from "../config/redisClient";
 
-export const createShortURL = async (url: string, expiresAt?: number) => {
+export const createShortURL = async (url: string, daysUntilExp?: number) => {
   for (let i = 0; i < 5; i++) {
     const shortCode = generateShortCode();
 
@@ -12,9 +12,9 @@ export const createShortURL = async (url: string, expiresAt?: number) => {
       [shortCode],
     );
     if (goodCode.rows.length === 0) {
-      if (expiresAt) {
+      if (daysUntilExp) {
         const date = new Date();
-        date.setDate(date.getDate() + expiresAt);
+        date.setDate(date.getDate() + daysUntilExp);
 
         const dateOfExpiration = date.toISOString();
 
@@ -35,7 +35,7 @@ export const createShortURL = async (url: string, expiresAt?: number) => {
     }
   }
 
-  return;
+  throw new AppError("Failed to create short URL", 500);
 };
 
 export const getOriginalUrl = async (shortCode: string) => {
@@ -43,8 +43,7 @@ export const getOriginalUrl = async (shortCode: string) => {
 
   try {
     const cached = await redisClient.get(key);
-    if(cached) {
-      console.log("hit cache");
+    if (cached) {
       return JSON.parse(cached);
     }
   } catch {
@@ -54,16 +53,17 @@ export const getOriginalUrl = async (shortCode: string) => {
   const result = await pool.query("SELECT * FROM urls WHERE short_code = $1", [
     shortCode,
   ]);
-  console.log("hit db");
 
   const url = result.rows[0];
 
-  if (!url) return null;
+  if (!url) {
+    throw new AppError("URL not found", 404);
+  }
 
   try {
     await redisClient.set(key, JSON.stringify(url), {
       EX: 300,
-    })
+    });
   } catch {
     // ignore cache failure
   }
@@ -72,13 +72,12 @@ export const getOriginalUrl = async (shortCode: string) => {
 };
 
 export const getUrlByShortCode = async (shortCode: string) => {
-  const result = await pool.query(
-    "SELECT * FROM urls WHERE short_code = $1",
-    [shortCode],
-  );
+  const result = await pool.query("SELECT * FROM urls WHERE short_code = $1", [
+    shortCode,
+  ]);
 
   return result.rows[0];
-}
+};
 
 export const incrementClickCount = async (shortCode: string) => {
   const result = await pool.query(
@@ -91,14 +90,12 @@ export const incrementClickCount = async (shortCode: string) => {
 
   const updated = result.rows[0];
 
-  if(!updated) return;
+  if (!updated) return;
 
   try {
-    await redisClient.set(
-      `url:${shortCode}`,
-      JSON.stringify(updated),
-      { EX: 300 }
-    );
+    await redisClient.set(`url:${shortCode}`, JSON.stringify(updated), {
+      EX: 300,
+    });
   } catch {
     // ignore
   }

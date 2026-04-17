@@ -1,10 +1,9 @@
-import { redisClient } from "./redisClient";
+import { redisClient } from "../config/redisClient";
 
 interface cacheEntry {
   data: any;
   expiresAt: number;
 }
-
 
 const CACHE_TTL = 1000 * 60 * 5;
 
@@ -16,5 +15,5 @@ export const getFromCache = async (key: string) => {
 export const setCache = async (key: string, value: any) => {
   await redisClient.set(key, JSON.stringify(value), {
     EX: 300,
-  })
+  });
 };
