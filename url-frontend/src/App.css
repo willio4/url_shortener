@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+.main {
+    background-color: black;
+    color:azure;
+    height: 100vh;
+}
+
