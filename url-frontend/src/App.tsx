@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -6,31 +6,23 @@ function App() {
   const [originalUrl, setOriginalUrl] = useState("");
   const [ttl, setTtl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
-  const [isNumber, setIsNumber] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (ttl === "") {
-      setIsNumber(true);
-      return;
-    }
-    const numericValue = Number(ttl);
-    setIsNumber(!isNaN(numericValue) && numericValue >= 0);
-  }, [ttl]);
+  const isNumber = ttl === "" || (!isNaN(Number(ttl)) && Number(ttl) >= 0);
 
-  const isValidUrl = (url) => {
+  const isValidUrl = (url: string) => {
     try {
       const newUrl = new URL(url);
       return newUrl.protocol === "http:" || newUrl.protocol === "https:";
-    } catch (err) {
+    } catch {
       return false;
     }
   };
 
   const isFormValid = isValidUrl(originalUrl) && isNumber && originalUrl !== "";
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isFormValid) return;
 
