@@ -1,7 +1,7 @@
-import pool from "../config/db";
-import { AppError } from "../utils/AppError";
-import { generateShortCode } from "../utils/generateShortCode";
-import { redisClient } from "../config/redisClient";
+import pool from "../config/db.js";
+import { AppError } from "../utils/AppError.js";
+import { generateShortCode } from "../utils/generateShortCode.js";
+import { redisClient } from "../config/redisClient.js";
 
 export const createShortURL = async (url: string, daysUntilExp?: number) => {
   for (let i = 0; i < 5; i++) {

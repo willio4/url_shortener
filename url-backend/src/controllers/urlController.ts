@@ -3,9 +3,9 @@ import {
   getOriginalUrl,
   getUrlByShortCode,
   incrementClickCount,
-} from "../services/urlService";
+} from "../services/urlService.js";
 import type { NextFunction, Request, Response } from "express";
-import { AppError } from "../utils/AppError";
+import { AppError } from "../utils/AppError.js";
 
 export const createShortUrlHandler = async (req: Request, res: Response, next: NextFunction) => {
   const { url, expiresAt } = req.body;

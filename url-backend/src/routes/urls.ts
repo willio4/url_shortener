@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { rateLimiter } from "../middleware/rateLimiter";
+import { rateLimiter } from "../middleware/rateLimiter.js";
 import {
   createShortUrlHandler,
   goToOriginalUrlHandler,
   getUrlStatsHandler,
-} from "../controllers/urlController";
+} from "../controllers/urlController.js";
 
 const router = Router();
 
