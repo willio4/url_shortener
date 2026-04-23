@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./App.css";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function App() {
   const [originalUrl, setOriginalUrl] = useState("");
@@ -30,17 +31,15 @@ function App() {
     setCopied(false);
 
     try {
-      const res = await axios.post("http://localhost:3000/shorten", {
+      const res = await axios.post(`${API_BASE_URL}/shorten`, {
         url: originalUrl,
         expiresAt: ttl !== "" ? Number(ttl) : null,
       });
 
       setShortUrl(res.data.shortUrl);
-      setOriginalUrl("");
-      setTtl("");
     } catch (err) {
-      console.error("Error shortening URL:", err);
-      alert("Failed to shorten URL. Is the backend running?");
+      console.error(err);
+      alert(`Backend unreachable at: ${API_BASE_URL}`); 
     } finally {
       setIsLoading(false);
     }
