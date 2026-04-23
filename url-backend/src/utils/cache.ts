@@ -1,4 +1,4 @@
-import { redisClient } from "../config/redisClient";
+import { redisClient } from "../config/redisClient.js";
 
 interface cacheEntry {
   data: any;
