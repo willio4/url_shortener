@@ -20,7 +20,7 @@ export const createShortUrlHandler = async (req: Request, res: Response, next: N
     const result = await createShortURL(url, expiresAt);
 
     return res.status(201).json({
-      shortUrl: `https://url-shortener-1-cak6.onrender.com/${result.short_code}`,
+      shortUrl: `https://url-shortener-bvpx.onrender.com${result.short_code}`,
     });
   } catch (err) {
     next(err)
