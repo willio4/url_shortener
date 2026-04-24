@@ -46,7 +46,8 @@ export const getOriginalUrl = async (shortCode: string) => {
     if (cached) {
       return JSON.parse(cached);
     }
-  } catch {
+  } catch (err) {
+    console.log(err);
     // ignore cache failure
   }
 
@@ -64,7 +65,8 @@ export const getOriginalUrl = async (shortCode: string) => {
     await redisClient.set(key, JSON.stringify(url), {
       EX: 300,
     });
-  } catch {
+  } catch (err) {
+    console.log(err);
     // ignore cache failure
   }
 
@@ -72,11 +74,16 @@ export const getOriginalUrl = async (shortCode: string) => {
 };
 
 export const getUrlByShortCode = async (shortCode: string) => {
-  const result = await pool.query("SELECT * FROM urls WHERE short_code = $1", [
-    shortCode,
-  ]);
-
-  return result.rows[0];
+  try {
+    const result = await pool.query(
+      "SELECT * FROM urls WHERE short_code = $1",
+      [shortCode],
+    );
+    return result.rows[0];
+  } catch (err) {
+    console.log(err);
+  }
+  return;
 };
 
 export const incrementClickCount = async (shortCode: string) => {

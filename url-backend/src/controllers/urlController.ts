@@ -27,17 +27,19 @@ export const createShortUrlHandler = async (req: Request, res: Response, next: N
   }
 };
 
-export const goToOriginalUrlHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const goToOriginalUrlHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const shortCode  = String(req.params.code); 
+    
+    const urlData = await getOriginalUrl(shortCode);
 
-    const shortCode = String(req.params.code);
-    const url = await getOriginalUrl(shortCode);
+    if (urlData.expires_at && new Date(urlData.expires_at) < new Date()) {
+      throw new AppError("This link has expired", 410);
+    }
+
     await incrementClickCount(shortCode);
-    return res.redirect(url.original_url);
+    
+    return res.redirect(urlData.original_url);
 
   } catch (err) {
     next(err);
